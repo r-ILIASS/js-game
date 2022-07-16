@@ -8,9 +8,23 @@ window.addEventListener("load", () => {
   class InputHandler {
     constructor(game) {
       this.game = game;
+      // keydown listener
       window.addEventListener("keydown", (e) => {
-        console.log(e.key)
-      })
+        if (
+          (e.key === "ArrowUp" || e.key === "ArrowDown") &&
+          this.game.keys.indexOf(e.key) === -1
+        ) {
+          this.game.keys.push(e.key);
+        }
+        console.log(this.game.keys);
+      });
+      // keydown listener
+      window.addEventListener("keyup", (e) => {
+        if (this.game.keys.indexOf(e.key) !== -1) {
+          this.game.keys.splice(this.game.keys.indexOf(e.key), 1);
+        }
+        console.log(this.game.keys);
+      });
     }
   }
 
@@ -26,8 +40,13 @@ window.addEventListener("load", () => {
       this.x = 20;
       this.y = 100;
       this.speedY = 0;
+      this.maxSpeed = 2;
     }
     update() {
+      if (this.game.keys.includes("ArrowUp")) this.speedY = -this.maxSpeed;
+      else if (this.game.keys.includes("ArrowDown")) this.speedY = this.maxSpeed;
+      else this.speedY = 0;
+
       this.y += this.speedY;
     }
     draw(context) {
@@ -49,6 +68,7 @@ window.addEventListener("load", () => {
       this.heigth = canvasHeight;
       this.player = new Player(this);
       this.input = new InputHandler(this);
+      this.keys = [];
     }
     update() {
       this.player.update();
@@ -59,10 +79,9 @@ window.addEventListener("load", () => {
   }
 
   const game = new Game(canvas.width, canvas.heigth);
-
   // animation loop
   function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     game.update();
     game.draw(ctx);
     requestAnimationFrame(animate);
