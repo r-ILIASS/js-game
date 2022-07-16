@@ -102,7 +102,20 @@ window.addEventListener("load", () => {
 
   class Background {}
 
-  class Ui {}
+  class UI {
+    constructor(game) {
+      this.game = game;
+      this.fontSize = 25;
+      this.fontFamilly = "Helvetica";
+      this.color = "yellow";
+    }
+    draw(context) {
+      context.fillStyle = this.color;
+      for (let i = 0; i < this.game.ammo; i++) {
+        context.fillRect(20 + 10 * i, 50, 3, 20);
+      }
+    }
+  }
 
   class Game {
     // prettier-ignore
@@ -111,6 +124,7 @@ window.addEventListener("load", () => {
       this.heigth = canvasHeight;              // match the canvas height
       this.player = new Player(this);          // new instance of Player
       this.input = new InputHandler(this);     // new instance of InputHandler
+      this.UI = new UI(this);                  // new instance of UI
       this.keys = [];                          // keep track of pressed keys
       this.ammo = 20;                          
       this.maxAmmo = 50;
@@ -125,11 +139,12 @@ window.addEventListener("load", () => {
           this.ammoTimer = 0;
         }
       } else {
-        this.ammoTimer += deltaTime
+        this.ammoTimer += deltaTime;
       }
     }
     draw(context) {
       this.player.draw(context);
+      this.UI.draw(context);
     }
   }
 
