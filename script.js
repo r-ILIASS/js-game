@@ -153,6 +153,9 @@ window.addEventListener("load", () => {
       for (let i = 0; i < this.game.ammo; i++) {
         context.fillRect(20 + 10 * i, 50, 3, 20);
       }
+      // timer
+      const formattedTime = (this.game.gameTime * 0.001).toFixed(1);
+      context.fillText("Timer: " + formattedTime, 20, 100);
       // gameover messages
       if (this.game.gameOver) {
         context.textAlign = "center";
@@ -166,9 +169,17 @@ window.addEventListener("load", () => {
           message2 = "Good Luck Next Time!";
         }
         context.font = "50px " + this.fontFamilly;
-        context.fillText(message1, this.game.width * 0.5, this.game.height * 0.5 - 40);
+        context.fillText(
+          message1,
+          this.game.width * 0.5,
+          this.game.height * 0.5 - 40
+        );
         context.font = "25px " + this.fontFamilly;
-        context.fillText(message2, this.game.width * 0.5, this.game.height * 0.5 + 40);
+        context.fillText(
+          message2,
+          this.game.width * 0.5,
+          this.game.height * 0.5 + 40
+        );
       }
       context.restore();
     }
@@ -184,17 +195,21 @@ window.addEventListener("load", () => {
       this.UI = new UI(this);                  // new instance of UI
       this.keys = [];                          // keep track of pressed keys
       this.enemies = [];                       // all active enemies
-      this.enemyTimer = 0;                     // in ms
-      this.enemyInterval = 1000;               // in ms
-      this.ammo = 20;                          
+      this.enemyTimer = 0;
+      this.enemyInterval = 1000;
+      this.ammo = 20;
       this.maxAmmo = 50;
-      this.ammoTimer = 0;                      // in ms
-      this.ammoInterval = 500;                 // in ms
+      this.ammoTimer = 0;
+      this.ammoInterval = 500;
+      this.gameTime = 0;
+      this.timeLimit = 15000;
       this.score = 0;                          // player score
       this.winningScore = 10;                  // winning score
       this.gameOver = false;                   // game over
     }
     update(deltaTime) {
+      if (!this.gameOver) this.gameTime += deltaTime;
+      if (this.gameTime >= this.timeLimit) this.gameOver = true;
       this.player.update();
       if (this.ammoTimer > this.ammoInterval) {
         if (this.ammo < this.maxAmmo) {
@@ -215,7 +230,7 @@ window.addEventListener("load", () => {
             projectile.markedForDeletion = true;
             if (enemy.lives <= 0) {
               enemy.markedForDeletion = true;
-              this.score += enemy.score;
+              if (!this.gameOver) this.score += enemy.score;
               if (this.score >= this.winningScore) this.gameOver = true;
             }
           }
