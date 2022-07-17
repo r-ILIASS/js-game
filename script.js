@@ -112,9 +112,11 @@ window.addEventListener("load", () => {
     draw(context) {
       context.fillStyle = "red";
       context.fillRect(this.x, this.y, this.width, this.height);
+      // TODO: remove start
       context.fillStyle = "black";
       context.font = "20px Helvetica";
-      context.fillText(String(this.lives), this.x, this.y);
+      context.fillText(String(this.lives), this.x, this.y - 5);
+      // TODO: remove end
     }
   }
 
@@ -136,13 +138,22 @@ window.addEventListener("load", () => {
       this.game = game;
       this.fontSize = 25;
       this.fontFamilly = "Helvetica";
-      this.color = "yellow";
+      this.color = "white";
     }
     draw(context) {
+      context.save();
       context.fillStyle = this.color;
+      context.shadowOffsetX = 2;
+      context.shadowOffsetY = 2;
+      context.shadowColor = "black";
+      context.font = this.fontSize + "px" + this.fontFamilly;
+      // score
+      context.fillText("Score: " + String(this.game.score), 20, 40);
+      // ammo
       for (let i = 0; i < this.game.ammo; i++) {
         context.fillRect(20 + 10 * i, 50, 3, 20);
       }
+      context.restore();
     }
   }
 
@@ -162,6 +173,8 @@ window.addEventListener("load", () => {
       this.maxAmmo = 50;
       this.ammoTimer = 0;                      // in ms
       this.ammoInterval = 500;                 // in ms
+      this.score = 0;                          // player score
+      this.winningScore = 10;                  // winning score
       this.gameOver = false;                   // game over
     }
     update(deltaTime) {
@@ -186,6 +199,7 @@ window.addEventListener("load", () => {
             if (enemy.lives <= 0) {
               enemy.markedForDeletion = true;
               this.score += enemy.score;
+              if (this.score >= this.winningScore) this.gameOver = true;
             }
           }
         });
