@@ -60,7 +60,7 @@ window.addEventListener("load", () => {
       this.x = 20;
       this.y = 100;
       this.speedY = 0;
-      this.maxSpeed = 2;
+      this.maxSpeed = 5;
       this.projectiles = [];
     }
     update() {
@@ -102,6 +102,8 @@ window.addEventListener("load", () => {
       this.x = this.game.width;
       this.speedX = Math.random() * -1.5 - 0.5;
       this.markedForDeletion = false;
+      this.lives = 5;
+      this.score = this.lives;
     }
     update() {
       this.x += this.speedX;
@@ -110,6 +112,9 @@ window.addEventListener("load", () => {
     draw(context) {
       context.fillStyle = "red";
       context.fillRect(this.x, this.y, this.width, this.height);
+      context.fillStyle = "black";
+      context.font = "20px Helvetica";
+      context.fillText(String(this.lives), this.x, this.y);
     }
   }
 
@@ -171,6 +176,19 @@ window.addEventListener("load", () => {
       }
       this.enemies.forEach((enemy) => {
         enemy.update();
+        if (this.checkCollision(this.player, enemy)) {
+          enemy.markedForDeletion = true;
+        }
+        this.player.projectiles.forEach((projectile) => {
+          if (this.checkCollision(projectile, enemy)) {
+            enemy.lives--;
+            projectile.markedForDeletion = true;
+            if (enemy.lives <= 0) {
+              enemy.markedForDeletion = true;
+              this.score += enemy.score;
+            }
+          }
+        });
       });
       this.enemies = this.enemies.filter((enemy) => !enemy.markedForDeletion);
       if (this.enemyTimer > this.enemyInterval && !this.gameOver) {
@@ -187,6 +205,14 @@ window.addEventListener("load", () => {
     }
     addEnemy() {
       this.enemies.push(new Angler1(this));
+    }
+    checkCollision(rect1, rect2) {
+      return (
+        rect1.x < rect2.x + rect2.width &&
+        rect1.x + rect1.width > rect2.x &&
+        rect1.y < rect2.y + rect2.height &&
+        rect1.y + rect1.height > rect2.y
+      );
     }
   }
 
