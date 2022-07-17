@@ -153,6 +153,23 @@ window.addEventListener("load", () => {
       for (let i = 0; i < this.game.ammo; i++) {
         context.fillRect(20 + 10 * i, 50, 3, 20);
       }
+      // gameover messages
+      if (this.game.gameOver) {
+        context.textAlign = "center";
+        let message1;
+        let message2;
+        if (this.game.score >= this.game.winningScore) {
+          message1 = "You Win!";
+          message2 = "Well Done!";
+        } else {
+          message1 = "You Lost!";
+          message2 = "Good Luck Next Time!";
+        }
+        context.font = "50px " + this.fontFamilly;
+        context.fillText(message1, this.game.width * 0.5, this.game.height * 0.5 - 40);
+        context.font = "25px " + this.fontFamilly;
+        context.fillText(message2, this.game.width * 0.5, this.game.height * 0.5 + 40);
+      }
       context.restore();
     }
   }
