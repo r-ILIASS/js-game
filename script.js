@@ -19,6 +19,8 @@ window.addEventListener("load", () => {
           this.game.keys.push(e.key);
         } else if (e.key === " ") {
           this.game.player.shootFromMouth();
+        } else if (e.key === "d") {
+          this.game.debug = !this.game.debug;
         }
       });
       // keydown listener
@@ -89,6 +91,9 @@ window.addEventListener("load", () => {
       }
     }
     draw(context) {
+      if (this.game.debug)
+        context.strokeRect(this.x, this.y, this.width, this.height);
+
       context.drawImage(
         this.image,
         this.frameX * this.width,
@@ -263,6 +268,7 @@ window.addEventListener("load", () => {
       this.winningScore = 10;                  // winning score
       this.speed = 1;
       this.gameOver = false;                   // game over
+      this.debug = false;
     }
     update(deltaTime) {
       if (!this.gameOver) this.gameTime += deltaTime;
