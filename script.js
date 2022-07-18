@@ -20,7 +20,7 @@ window.addEventListener("load", () => {
         } else if (e.key === " ") {
           this.game.player.shootFromMouth();
         } else if (e.key === "d") {
-          this.game.debug = !this.game.debug;
+          this.game.debugMode = !this.game.debugMode;
         }
       });
       // keydown listener
@@ -91,7 +91,7 @@ window.addEventListener("load", () => {
       }
     }
     draw(context) {
-      if (this.game.debug)
+      if (this.game.debugMode)
         context.strokeRect(this.x, this.y, this.width, this.height);
 
       context.drawImage(
@@ -127,28 +127,45 @@ window.addEventListener("load", () => {
       this.markedForDeletion = false;
       this.lives = 5;
       this.score = this.lives;
+      this.frameX = 0;
+      this.frameY = 0;
+      this.maxFrame = 37;
     }
     update() {
-      this.x += this.speedX;
+      this.x += this.speedX - this.game.speed;
       if (this.x + this.width < 0) this.markedForDeletion = true;
+      // sprite animation
+      if (this.frameX < this.maxFrame) this.frameX++;
+      else this.frameX = 0;
     }
     draw(context) {
-      context.fillStyle = "red";
-      context.fillRect(this.x, this.y, this.width, this.height);
-      // TODO: remove start
-      context.fillStyle = "black";
-      context.font = "20px Helvetica";
-      context.fillText(String(this.lives), this.x, this.y - 5);
-      // TODO: remove end
+      context.drawImage(
+        this.image,
+        this.frameX * this.width,
+        this.frameY * this.height,
+        this.width,
+        this.height,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
+      if (this.game.debugMode) {
+        context.strokeRect(this.x, this.y, this.width, this.height);
+        context.font = "20px Helvetica";
+        context.fillText(String(this.lives), this.x, this.y - 5);
+      }
     }
   }
 
   class Angler1 extends Enemy {
     constructor(game) {
       super(game);
-      this.width = 228 * 0.2;
-      this.height = 169 * 0.2;
+      this.width = 228;
+      this.height = 169;
       this.y = Math.random() * (this.game.height * 0.9 - this.height);
+      this.image = document.getElementById("angler1");
+      this.frameY = Math.floor(Math.random() * 3);
     }
   }
 
@@ -268,7 +285,7 @@ window.addEventListener("load", () => {
       this.winningScore = 10;                  // winning score
       this.speed = 1;
       this.gameOver = false;                   // game over
-      this.debug = false;
+      this.debugMode = false;
     }
     update(deltaTime) {
       if (!this.gameOver) this.gameTime += deltaTime;
