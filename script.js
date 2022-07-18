@@ -268,7 +268,7 @@ window.addEventListener("load", () => {
     constructor(game) {
       this.game = game;
       this.fontSize = 25;
-      this.fontFamilly = "Helvetica";
+      this.fontFamilly = "Bangers";
       this.color = "white";
     }
     draw(context) {
@@ -279,6 +279,7 @@ window.addEventListener("load", () => {
       context.shadowColor = "black";
       context.font = this.fontSize + "px" + this.fontFamilly;
       // score
+      context.font = `${this.fontSize}px ` + this.fontFamilly;
       context.fillText("Score: " + String(this.game.score), 20, 40);
       // timer
       const formattedTime = (this.game.gameTime * 0.001).toFixed(1);
