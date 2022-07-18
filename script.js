@@ -68,8 +68,11 @@ window.addEventListener("load", () => {
       this.maxSpeed = 3;
       this.projectiles = [];
       this.image = document.getElementById("player");
+      this.powerUp = false;
+      this.powerUpTimer = 0;
+      this.powerUpLimit = 10000;
     }
-    update() {
+    update(deltaTime) {
       // handle mouvement
       if (this.game.keys.includes("ArrowUp")) this.speedY = -this.maxSpeed;
       else if (this.game.keys.includes("ArrowDown"))
@@ -89,11 +92,25 @@ window.addEventListener("load", () => {
       } else {
         this.frameX = 0;
       }
+      // power up
+      if (this.powerUp) {
+        if (this.powerUpTimer >= this.powerUpLimit) {
+          this.powerUp = false;
+          this.powerUpTimer = 0;
+          this.frameY = 0;
+        } else {
+          this.powerUpTimer += deltaTime;
+          this.frameY = 1;
+          this.game.ammo += 0.1;
+        }
+      }
     }
     draw(context) {
       if (this.game.debugMode)
         context.strokeRect(this.x, this.y, this.width, this.height);
-
+      this.projectiles.forEach((projectile) => {
+        projectile.draw(context);
+      });
       context.drawImage(
         this.image,
         this.frameX * this.width,
@@ -105,9 +122,6 @@ window.addEventListener("load", () => {
         this.width,
         this.height
       );
-      this.projectiles.forEach((projectile) => {
-        projectile.draw(context);
-      });
     }
     shootFromMouth() {
       if (this.game.ammo > 0) {
@@ -116,6 +130,19 @@ window.addEventListener("load", () => {
         );
         this.game.ammo--;
       }
+      if (this.powerUp) this.shootFromTail();
+    }
+    shootFromTail() {
+      if (this.game.ammo > 0) {
+        this.projectiles.push(
+          new Projectile(this.game, this.x + 80, this.y + 175)
+        );
+      }
+    }
+    enterPowerUP() {
+      this.powerUpTimer = 0;
+      this.powerUp = true;
+      this.game.ammo = this.game.maxAmmo;
     }
   }
 
@@ -182,6 +209,20 @@ window.addEventListener("load", () => {
     }
   }
 
+  class LuckyFish extends Enemy {
+    constructor(game) {
+      super(game);
+      this.width = 99;
+      this.height = 95;
+      this.y = Math.random() * (this.game.height * 0.9 - this.height);
+      this.image = document.getElementById("lucky");
+      this.frameY = Math.floor(Math.random() * 2);
+      this.lives = 3;
+      this.score = 15;
+      this.type = "lucky";
+    }
+  }
+
   class Layer {
     constructor(game, image, speedModifier) {
       this.game = game;
@@ -239,10 +280,6 @@ window.addEventListener("load", () => {
       context.font = this.fontSize + "px" + this.fontFamilly;
       // score
       context.fillText("Score: " + String(this.game.score), 20, 40);
-      // ammo
-      for (let i = 0; i < this.game.ammo; i++) {
-        context.fillRect(20 + 10 * i, 50, 3, 20);
-      }
       // timer
       const formattedTime = (this.game.gameTime * 0.001).toFixed(1);
       context.fillText("Timer: " + formattedTime, 20, 100);
@@ -270,6 +307,11 @@ window.addEventListener("load", () => {
           this.game.width * 0.5,
           this.game.height * 0.5 + 40
         );
+      }
+      // ammo
+      if (this.game.player.powerUp) context.fillStyle = "#ffffbd";
+      for (let i = 0; i < this.game.ammo; i++) {
+        context.fillRect(20 + 10 * i, 50, 3, 20);
       }
       context.restore();
     }
@@ -305,7 +347,7 @@ window.addEventListener("load", () => {
       if (this.gameTime >= this.timeLimit) this.gameOver = true;
       this.background.update();
       this.background.layer4.update();
-      this.player.update();
+      this.player.update(deltaTime);
       if (this.ammoTimer > this.ammoInterval) {
         if (this.ammo < this.maxAmmo) {
           this.ammo++;
@@ -318,6 +360,8 @@ window.addEventListener("load", () => {
         enemy.update();
         if (this.checkCollision(this.player, enemy)) {
           enemy.markedForDeletion = true;
+          if (enemy.type === "lucky") this.player.enterPowerUP();
+          else this.score--;
         }
         this.player.projectiles.forEach((projectile) => {
           if (this.checkCollision(projectile, enemy)) {
@@ -349,7 +393,8 @@ window.addEventListener("load", () => {
     addEnemy() {
       const randomize = Math.random();
       if (randomize < 0.5) this.enemies.push(new Angler1(this));
-      else this.enemies.push(new Angler2(this));
+      else if (randomize < 0.8) this.enemies.push(new Angler2(this));
+      else this.enemies.push(new LuckyFish(this));
     }
     checkCollision(rect1, rect2) {
       return (
