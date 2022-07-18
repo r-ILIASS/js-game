@@ -79,6 +79,10 @@ window.addEventListener("load", () => {
         this.speedY = this.maxSpeed;
       else this.speedY = 0;
       this.y += this.speedY;
+      // handle boundaries
+      if (this.y > this.game.height - this.height * 0.5)
+        this.y = this.game.height - this.height * 0.5;
+      else if (this.y < 0) this.y = 0;
       // handle projectiles
       this.projectiles.forEach((projectile) => {
         projectile.update();
