@@ -70,7 +70,7 @@ window.addEventListener("load", () => {
             this.angle = 0;
             this.va = Math.random() * 0.2 - 0.1; // velocity of angle
             this.bounced = 0;
-            this.bottomBounceBoundary = Math.random() * 100 + 60;
+            this.bottomBounceBoundary = Math.random() * 80 + 60;
         }
         update() {
             this.angle += this.va;
