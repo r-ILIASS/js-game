@@ -358,7 +358,12 @@ window.addEventListener("load", () => {
             this.game = game;
             this.frameX = 0;
             this.maxFrame = 8;
+            this.spriteWidth = 200;
             this.spriteHeight = 200;
+            this.width = this.spriteWidth;
+            this.height = this.spriteHeight;
+            this.x = x - this.width * 0.5;
+            this.y = y - this.height * 0.5;
             this.fps = 25;
             this.timer = 0;
             this.interval = 1000 / this.fps;
@@ -393,15 +398,15 @@ window.addEventListener("load", () => {
         constructor(game, x, y) {
             super(game, x, y);
             this.image = document.getElementById("smokeExplosion");
-            this.spriteWidth = 200;
-            this.width = this.spriteWidth;
-            this.height = this.spriteHeight;
-            this.x = x - this.width * 0.5;
-            this.y = y - this.height * 0.5;
         }
     }
 
-    class FireExplosion extends Explosion {}
+    class FireExplosion extends Explosion {
+        constructor(game, x, y) {
+            super(game, x, y);
+            this.image = document.getElementById("fireExplosion");
+        }
+    }
 
     class UI {
         constructor(game) {
@@ -596,7 +601,7 @@ window.addEventListener("load", () => {
         }
         addExplosion(enemy) {
             const randomize = Math.random();
-            if (randomize < 1)
+            if (randomize < 0.5) {
                 this.explosions.push(
                     new SmokeExplosion(
                         this,
@@ -604,6 +609,15 @@ window.addEventListener("load", () => {
                         enemy.y + enemy.height * 0.5
                     )
                 );
+            } else {
+                this.explosions.push(
+                    new FireExplosion(
+                        this,
+                        enemy.x + enemy.width * 0.5,
+                        enemy.y + enemy.height * 0.5
+                    )
+                );
+            }
         }
         checkCollision(rect1, rect2) {
             return (
