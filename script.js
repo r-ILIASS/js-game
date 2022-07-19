@@ -295,6 +295,23 @@ window.addEventListener("load", () => {
         }
     }
 
+    class Drone extends Enemy {
+        constructor(game, x, y) {
+            // x, y: postion of the mother HiveWhale
+            super(game);
+            this.width = 115;
+            this.height = 95;
+            this.x = x;
+            this.y = y;
+            this.image = document.getElementById("drone");
+            this.frameY = Math.floor(Math.random() * 2);
+            this.lives = 3;
+            this.score = this.lives;
+            this.type = "drone";
+            this.speedX = Math.random() * -4.2 - 0.5;
+        }
+    }
+
     class Layer {
         constructor(game, image, speedModifier) {
             this.game = game;
@@ -438,7 +455,7 @@ window.addEventListener("load", () => {
                 enemy.update();
                 if (this.checkCollision(this.player, enemy)) {
                     enemy.markedForDeletion = true;
-                    for (let i = 0; i < 10; i++) {
+                    for (let i = 0; i < enemy.score; i++) {
                         this.particles.push(
                             new Particle(
                                 this,
@@ -462,7 +479,7 @@ window.addEventListener("load", () => {
                             )
                         );
                         if (enemy.lives <= 0) {
-                            for (let i = 0; i < 10; i++) {
+                            for (let i = 0; i < enemy.score; i++) {
                                 this.particles.push(
                                     new Particle(
                                         this,
@@ -472,6 +489,21 @@ window.addEventListener("load", () => {
                                 );
                             }
                             enemy.markedForDeletion = true;
+                            if (enemy.type === "hive") {
+                                for (let i = 0; i < 5; i++) {
+                                    this.enemies.push(
+                                        new Drone(
+                                            this,
+                                            enemy.x +
+                                                Math.random() * enemy.width,
+                                            enemy.y +
+                                                Math.random() *
+                                                    enemy.height *
+                                                    0.5
+                                        )
+                                    );
+                                }
+                            }
                             if (!this.gameOver) this.score += enemy.score;
                             if (this.score >= this.winningScore)
                                 this.gameOver = true;
